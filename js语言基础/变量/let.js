@@ -72,7 +72,7 @@ console.log(address);
 /* 条件声明 */
 
 /* for循环中的let应用 */
-//在推出for循环时，var迭代变量保存的是导致循环推出的值，而let Javascript引擎会在后台为每个迭代循环声明一个新的迭代变量，每个setTimeout引用的是不同的变量实例
+//在退出for循环时，var迭代变量保存的是导致循环推出的值，而let Javascript引擎会在后台为每个迭代循环声明一个新的迭代变量，每个setTimeout引用的是不同的变量实例
 for(var i=0; i < 5; i++) {
     console.log(i);  //0,1,2,3,4
 }
