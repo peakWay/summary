@@ -43,3 +43,5 @@ obj2.valueOf = function() {
 }
 console.log(obj > obj2) //调用valueOf，这种情况即为2和1两数值比较，结果为true
 ```
+
+- 涉及NaN的比较都为false
