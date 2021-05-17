@@ -19,7 +19,7 @@
 - 正常值除以0，结果为Infinity
 - 0除以Infinity, 结果为0
 - 正常值除以Infinity，结果为Infinity
-- 0除以0，结果为Infinity
+- 0除以0，结果为Nan
 
 ## 除(取余)运算符
 除(取余)运算符表示方式为%，求商值规则如下：

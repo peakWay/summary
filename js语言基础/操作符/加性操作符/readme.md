@@ -14,7 +14,7 @@
     console.log(a + b); //3
     console.log(b + c); //4
     ```
-- 当值为对象时，会先调用valueOf方法获取数值，当返回值为NaN时，再调用toString方法获取值
+- 当值为对象时，会先调用valueOf方法获取值，当返回值为NaN时，再调用toString方法获取值
     ```javascript
     //当valueOf返回等于NaN的情况
     let obj = { a: 1 };
