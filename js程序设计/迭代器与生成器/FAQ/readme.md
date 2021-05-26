@@ -42,3 +42,26 @@
     g.next();
     g.next();
     ```
+
+- 生成器如何实现异步执行流
+    ```javascript
+    function delay(duration) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve()
+            }, duration)
+        })
+    }
+
+    function* generator() {
+        yield delay(2000);
+        console.log('继续执行')
+    }
+
+    let g = generator();
+
+    let v1 = g.next().value;
+    v1.then(() => {
+        g.next();
+    })
+    ```
