@@ -9,18 +9,18 @@
 
 ## 背景与概念
 在ECMAScript最初的版本，只能通过var arr = [1, 2], for(var i=0;i< 10;i++){ console.log(arr[i]) }这种迭代方式，这种迭代方式有几个缺点，一是数据结构比较固定，二是获取值需要通过索引的方式。后面ES5中Array.prototype.forEach解决了这需要依赖索引的这个问题，但是仍然不够好，还是有些问题，比如如何终止迭代。所以ES6引入了迭代器。
-任何实现Interable接口的数据结构都可以被实现了Interator接口的结构消费。迭代器是个按需创建的一次性对象。每个迭代器都关联着一个可迭代对象。迭代器会提供关联的可迭代对象的接口Api，迭代器不会去了解可迭代对象的数据结构，只关心能否返回连续的值。
+任何实现Iterable接口的数据结构都可以被实现了Iterator接口的结构消费。迭代器是个按需创建的一次性对象。每个迭代器都关联着一个可迭代对象。迭代器会提供关联的可迭代对象的接口Api，迭代器不会去了解可迭代对象的数据结构，只关心能否返回连续的值。
 
 ## 迭代协议
-任何实现Interable接口（可迭代协议）的数据结构都应该有两个特征：拥有自我识别能力和实现Interator接口。这也以为着可迭代对象必须内部定义[Symbol.iterator]构造工厂函数。下面我们通过内置可迭代对象分析组成：
+任何实现Iterable接口（可迭代协议）的数据结构都应该有两个特征：拥有自我识别能力和实现Iterator接口。这也以为着可迭代对象必须内部定义[Symbol.iterator]构造工厂函数。下面我们通过内置可迭代对象分析组成：
 ```javascript
-//可迭代对象(实现了Interable接口)
+//可迭代对象(实现了Iterable接口)
 let arr = [1, 2, 3]   
 
 //迭代器构造函数
 let iterFunc = arr[Symbol.iterator]
 
-//迭代器(实现了Interator接口)
+//迭代器(实现了Iterator接口)
 let iter = arr[Symbol.iterator]()
 
 //迭代器api
@@ -77,7 +77,7 @@ console.log(set) //{1, 2, 3}
 ```
 
 ## 迭代器协议
-迭代器是个实现Interator接口（迭代器协议）的对象。它定义了一个序列，并在终止的时候可能返回一个返回值。迭代器是通过next()方法进行迭代，每次迭代会返回一个InteratorResult对象。该对象有两个属性，一个是done，如果迭代到序列中的最后一个，则为true，否则为false。另一个是value，即序列中的next值。当迭代到序列最后一个再调用next()方法，返回值仍为最后一个序列值
+迭代器是个实现Iterator接口（迭代器协议）的对象。它定义了一个序列，并在终止的时候可能返回一个返回值。迭代器是通过next()方法进行迭代，每次迭代会返回一个IteratorResult对象。该对象有两个属性，一个是done，如果迭代到序列中的最后一个，则为true，否则为false。另一个是value，即序列中的next值。当迭代到序列最后一个再调用next()方法，返回值仍为最后一个序列值
 ```javascript
 let arr = [1, 2, 3];
 let iter = arr[Symbol.iterator]();
@@ -90,7 +90,7 @@ console.log(iter.next());  //{ value: undefined, done: true }
 ```
 
 ## 自定义迭代器
-需要实现Interator接口，并提供next方法获取每次迭代的InteratorResult对象
+需要实现Iterator接口，并提供next方法获取每次迭代的IteratorResult对象
 ```javascript
 class Foo {
     constructor(limit) {
