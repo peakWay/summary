@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // let o = {}
+        // Object.defineProperty(o, 'book', {
+        //     value: 1
+        // })
+
+        // console.log(Object.getOwnPropertyDescriptor(o, 'book'))
+
+        // /* 原型链 */
+        // function SuperType() {
+        //     console.log(this, 111)
+        //     this.property = true
+        // }
+
+        // SuperType.prototype.getSuperValue = function () {
+        //     console.log(this)
+        //     return this.property
+        // }
+
+        // function SubType() {
+        //     this.subProperty = false
+        // }
+
+        // SubType.prototype = new SuperType()
+        // SubType.prototype.getSubValue = function () {
+        //     return this.subProperty
+        // }
+
+        // let ins = new SubType();
+        // console.log(ins.getSuperValue())
+
+        /* 属性迭代 */
+        // function Person() {}
+
+        // Person.prototype.name = 'oldman';
+        // Person.prototype.age = 25;
+        // Person.prototype.sayName = function() {
+        //     console.log(this.name);
+        // }
+
+        // let person1 = new Person();
+
+        // person1.home = '衡阳'
+
+        // for(let k in person1) {
+        //     console.log(k)
+        // }
+
+        // console.log(Object.keys(person1))
+
+        
+
+        /* 下面是原型和作用域、this的理解运用 */
+        // let name = '1212'
+
+        // let person = {
+        //     name: 'oldman',
+        //     age: 25,
+        //     sayName: function() {
+        //         console.log(this, 'name')
+        //         console.log(name)
+        //     }
+        // }
+
+        // function sayAge () {
+        //     console.log(this, 'age')
+        // }
+
+        // function todo() {
+        //     let name = 'peakWay';
+        //     console.log(this)
+        //     person.sayName()
+
+        //     let a = person.sayName
+
+        //     a();
+
+
+        //     person.sayAge = sayAge
+        //     person.sayAge()
+        //     sayAge()
+
+        //     function sayName() {
+        //         console.log(this, 'name')
+        //         console.log(name)
+        //     }
+
+        //     sayName()
+
+        //     let person1 = {
+        //         name: 'person1name',
+        //         sayName: person.sayName,
+        //         sayName1: function() {
+        //             console.log(this, 'name')
+        //             console.log(name)
+        //         }
+        //     }
+
+        //     person1.sayName()
+        //     person1.sayName1()
+        // }
+
+        // todo();
+
+        /* 类super与构造函数理解 */
+        let obj = {
+            sayThis: function() {
+                console.log(this)
+            }
+        }
+
+        
+
+        class Person {
+            constructor() {
+                console.log(this);
+                this.a = 'a'
+                obj.sayThis()
+            }
+
+            set name(name) {
+                this.name = name
+            }
+
+            get name() {
+                return 'sd'
+            }
+        }
+        
+        let p1 = new Person()
+        let p2 = new new Person().constructor()
+        console.log(p1, '查看访问器中的设置属性和获得属性')
+        console.log(p1 === p2)    //实例不同
+        console.log(Person === new Person().constructor) //构造函数是相同的
+        console.log(p1 instanceof Person, p2 instanceof Person)
+
+        class oldPerson extends Person {
+            constructor() {
+                // console.log(this)
+                super();
+                //应该等效于Person.constructor.call(this)
+
+                this.b = 'b'
+
+                console.log(this)
+            }
+        }
+        
+
+        let p = new oldPerson();
+
+        let obj2 = {
+            age: 15,
+            sayAge: function() {
+                console.log(this)
+                this.age = 18
+            }
+        }
+
+        let obj1 = {
+            name: 'oldman',
+            sayName: function() {
+                obj2.sayAge();
+                this.name = 'one'
+                console.log(this)
+            }
+        }
+
+        obj1.sayName()
+
+
+        /* 类实现静态私有变量 */
+        // (function() {
+        //     let privateVariable = 10
+
+        //     class InnerClass1 {
+        //         publicMethod () {
+        //             privateVariable++;
+
+        //             console.log(privateVariable);
+        //         }
+        //     }
+
+            
+        //     InnerClass2 = class {
+        //         publicMethod () {
+        //             privateVariable++;
+
+        //             console.log(privateVariable);
+        //         }
+        //     }
+
+        //     InnerClass3 = function(){}
+
+        //     InnerClass3.prototype.publicMethod = function() {
+        //                 privateVariable++;
+
+        //             console.log(privateVariable);
+        //     }
+        // })()
+
+
+        // console.log(window)
+        // new InnerClass2().publicMethod()  //11
+        // new InnerClass3().publicMethod()  //12
+        // new InnerClass1().publicMethod()  //报错
+        
+
+    </script>
+</body>
+</html>
