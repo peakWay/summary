@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../sdk/react.js" crossorigin></script>
+    <script src="../sdk/react-dom.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone@7.14.7/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel" >
+
+        const Count = ({count}) => {
+            console.log(123)
+            return <div>数量：{ count }</div>
+        }
+
+        const PCount = React.memo(Count)
+
+        class App extends React.Component {
+            state = { count: 1 }
+
+            constructor(props) {
+                super(props);
+                this.addCount = this.addCount.bind(this)
+            }
+
+            addCount () {
+                this.setState({
+                    count: this.state.count + 1
+                })
+            }
+
+            render () {
+                const { count } = this.state;
+
+                return (
+                    <div>
+                        <PCount count={ count } />
+                        <button onClick={ this.addCount }>增加</button>
+                    </div>
+                )
+            }
+        }
+        
+        ReactDOM.render(
+            <App />,
+            document.getElementById('root')
+        );
+    </script>
+</body>
+</html>
