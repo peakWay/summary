@@ -65,3 +65,35 @@
         g.next();
     })
     ```
+
+    ```javascript
+    function randomPromise(i) {
+        const time = parseInt(Math.random() * 1000)
+
+        return new Promise((resolve) => {
+            console.log(time, i)
+            setTimeout(() => {
+                resolve(i);
+            }, 1000)
+        })
+    }
+
+    async function* generate() {
+        let i = 0;
+        while(i < 5) {
+            yield randomPromise(i);
+            i++;
+        }
+    }
+
+    let iter = generate();
+
+    (async function() {
+        for await(let k of iter) {
+            console.log(k);
+            if (k > 2) {
+                break;
+            }
+        }
+    })()
+    ```
