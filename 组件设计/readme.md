@@ -18,10 +18,9 @@
 - 公司项目组件的问题、建议
   - 目录结构
   - 非ts组件无类型检查
-  - 逻辑未分离
+  - 逻辑分离不完善
   - 未具现
   - 基本不用无状态组件、纯组件
-- 怎么看待第三方ui库(ant-mobile)
 - 增效
   - 用户片段
 - 总结
@@ -212,9 +211,13 @@ withRouter作用是将一个组件包裹进Route里面, 然后react-router的三
 3. 与组件的区别
 
 公用逻辑封装与组件封装的区别主要有：
+
 1.公用逻辑封装与视图层无关联，可以根据状态随时替换；而组件封装一般具有默认组件视图，样式不易更改
+
 2.公用逻辑封装可以适应多种类型场景，组件封装一般只适应一种场景。比如visible显隐逻辑，它可以作用于弹窗显隐，主体内容显隐，页面初始化成功前后显隐等等。而弹窗会做作为一个组件，其内容的显隐只是组件中的部分逻辑
+
 3.公用逻辑封装可以将多个逻辑组合包裹到一个视图中，而组件只能做到组件组合，逻辑不能作用同一视图
+
 4.公用逻辑也可以是作为组件的组成部分。比如visible显隐逻辑可以是会话弹窗组件、底部sheet组件的公共逻辑
 
 4. 封装时机（什么时候进行公共逻辑封装）
@@ -275,6 +278,8 @@ render() {
 我们经常用到的第三方组件库(ant-mobile)里面基本上都具有具现的特征。
 
 ## 公司项目组件的问题、建议
+
+### 目录结构
 公司项目目录是以模块化为核心划分，组件分布如下
 
 ```text
@@ -292,6 +297,117 @@ modules                 //模块文件
     router.js           //当前模块下路由
     
 ```
+这种结构总体上感觉还是不错的，但是就是并未基于容器组件与展示组件细化粒度并分开放置，我建议的目录结构为
+```text
+node_modules/
+  @yt/                  //公司内部必备组件，包括ui组件，业务组件，工具组件
+component               //公用组件，多个模块存在使用，但有些和@yt大同小异
+modules                 //模块文件
+  user                  //某单独(用户)模块
+    components          //如果有容器组件与展示组件分离不了的情况，放到这，混用组件
+    container           //容器组件，有状态组件，一般为个性化业务状态组件
+    presentation        //展示组件，应尽量保证内部为无状态组件，纯业务ui组件
+    hoc                 //高阶组件，分离公用逻辑
+    hook                //自定义hook，也是分离公用逻辑，如果使用hook才添加
+    pages               
+      index             //某页面
+        index.js        
+        index.scss
+        model.js        //dva状态管理
+    router.js           //当前模块下路由
+    
+```
+当目录结构规范后，各司其职，我们就能很快找到对应文件进行维护，减少找文件的时间
+
+### 非ts组件无类型检查
+当使用维护其他人的非ts组件时，不确定数据类型怎么传，缺少PropTypes类型检查。
+建议非ts组件都增加下类型检查，利人利己，耽误不了多久时间。
+
+官网链接：<https://zh-hans.reactjs.org/docs/typechecking-with-proptypes.html>
+
+### 无与视图状态关联的公用逻辑封装
+这个其实并不是必要的，但我建议避免整块逻辑的复制，应该有意识的去考虑提取封装，虽然这样做第一次肯定没有直接写快，以后也没有ctrl+c与ctrl+v快，但是这有利于逻辑与视图的更细化解耦，希望项目公用逻辑封装积累越来越多，以后业务的特定逻辑越来越少，实现业务的逻辑组合结构。
+
+### 未具现
+这个也是非必要可以注意的点，能够快速发现主体内容，结构明了清晰。
+
+### 基本不用无状态组件、纯组件
+这两类组件是React非常推崇的，我建议在写组件前思考下这个组件是否具备状态、是否props会变化，再确定使用什么基础组件
+
+## 增效
+随着组件的粒度越小，分离更加完全，我们常常一个页面可能会写很多组件，这也增加了一些固定结构代码的工作量，这种冗余又耗时的编写可以使用编辑工具来完成。
+
+### 用户片段
+VSCode(其他编辑工具应该也有)里面的用户片段可以使用快捷方式生成指定代码，这可以解决固定结构代码工作量的问题，下面就介绍下我常用的几种用户片段
+
+生成有状态组件：
+```text
+{
+    "Create React Class template": {
+        "prefix": "create react class",
+        "body": [
+            "\nimport React, { Component } from \"react\";",
+            "import PropTypes from \"prop-types\";",
+            "\nimport styles from './class.scss';",
+            "\nclass ${class} extends Component { \n",
+            "\trender() {",
+            "\t\treturn null",
+            "\t}",
+            "}\n",
+            "${class}.propTypes = {",
+            "\n}",
+            "\nexport default ${class};"
+        ],
+        "description": "Create React Class template"
+    }
+}
+```
+
+生成无状态组件(函数组件):
+```text
+{
+    "Create React Function template": {
+        "prefix": "create react function",
+        "body": [
+            "\nimport React from \"react\";",
+            "import PropTypes from \"prop-types\";",
+            "\nimport styles from './class.scss';",
+            "\nconst ${class} = (props) => { \n",
+            "\treturn null",
+            "}\n",
+            "${class}.propTypes = {",
+            "\n}",
+            "\nexport default ${class};"
+        ],
+        "description": "Create React Function template"
+    }
+}
+```
+
+生成ts函数组件或hook:
+```text
+{
+    "Create React Ts Function template": {
+        "prefix": "create react ts function",
+        "body": [
+            "\nimport styles from './class.scss';",
+            "\nimport React from \"react\";",
+            "\ninterface ${class}Props {\n",
+            "}\n",
+            "const ${class}: React.FC<${class}Props> = (props) => {",
+            "\treturn null",
+            "}\n",
+            "export default ${class};"
+        ],
+        "description": "React Ts Function template"
+    }
+}
+```
+
+**演示**
+
+## 总结
+
 
 
 

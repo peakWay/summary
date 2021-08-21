@@ -114,7 +114,7 @@
         /* 类super与构造函数理解 */
         let obj = {
             sayThis: function() {
-                console.log(this)
+                console.log(this, 'obj-this')
             }
         }
 
@@ -122,7 +122,7 @@
 
         class Person {
             constructor() {
-                console.log(this);
+                console.log(this, 'Person-constructor');
                 this.a = 'a'
                 obj.sayThis()
             }
@@ -151,31 +151,31 @@
 
                 this.b = 'b'
 
-                console.log(this)
+                console.log(this, 'oldPerson-constructor')
             }
         }
         
 
         let p = new oldPerson();
 
-        let obj2 = {
-            age: 15,
-            sayAge: function() {
-                console.log(this)
-                this.age = 18
-            }
-        }
+        // let obj2 = {
+        //     age: 15,
+        //     sayAge: function() {
+        //         console.log(this)
+        //         this.age = 18
+        //     }
+        // }
 
-        let obj1 = {
-            name: 'oldman',
-            sayName: function() {
-                obj2.sayAge();
-                this.name = 'one'
-                console.log(this)
-            }
-        }
+        // let obj1 = {
+        //     name: 'oldman',
+        //     sayName: function() {
+        //         obj2.sayAge();
+        //         this.name = 'one'
+        //         console.log(this)
+        //     }
+        // }
 
-        obj1.sayName()
+        // obj1.sayName()
 
 
         /* 类实现静态私有变量 */
@@ -214,7 +214,6 @@
         // new InnerClass3().publicMethod()  //12
         // new InnerClass1().publicMethod()  //报错
         
-
     </script>
 </body>
 </html>

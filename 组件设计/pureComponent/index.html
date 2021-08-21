@@ -59,7 +59,8 @@
 
                 return (
                     <div>
-                        <div>姓名： <PNameFn name={name}></PNameFn></div>
+                        <div>姓名： <Name name={name}></Name></div>
+        <div>姓名： <PName name={name}></PName></div>
                         
                         <div>年龄： { age }</div>
                         <button onClick={ this.growOld }>二十年后</button>
@@ -68,8 +69,7 @@
             }
         }
 
-        // <div>姓名： <Name name={name}></Name></div>
-        // <div>姓名： <PName name={name}></PName></div>
+       
         
         // <div>姓名： <NameFn name={name}></NameFn></div>
         // <div>姓名： <PNameFn name={name}></PNameFn></div>
