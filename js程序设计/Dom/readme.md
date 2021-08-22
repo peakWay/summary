@@ -226,11 +226,151 @@ parentNode值为null；
 - style返回的是css字符串
 - 使用html绑定的事件处理程序返回的是源代码字符串
 
+> 获取元素的所有属性: attributes属性
+返回一个由属性节点组成的NamedNodeMap实例，类似NodeList，很少用，一般用来遍历,对应的查、改、删方法有 
+- getNamedItem(name)
+- setNamedItem(node)
+- item(pos)
+- removeNamedItem(name)
 
+### 2.设置属性
+> 通过Dom对象属性
+.属性的方式，对应几种特殊属性的设置：
+- class对应的属性字段仍为className
+- style的值为css字符串
+- onclick的值为方法
+- 设置的自定义属性无法通过getAttribute()获取
 
+> setAttribute()
+- class对应的属性字端为class
+- style的值为css字符串
+- onclick的值为源代码字符串，代码可以直接访问event和this参数
 
+### 3.删除属性
+> 通过Dom对应属性  
 
+设置值为null或空字符串即删除
 
+> removeAttribute()
+
+设置值为空字符串
+
+### 操作样式
+HTML中的样式有3种定义方式：外部样式表（通过\<link\>元素）、内部样式表（通过\<style\>元素）、和元素特定样式
+
+### 1. 操作样式表
+> 动态加载
+#### 1. 外部样式
+```javascript
+function loadOuterStyleSheet() {
+  let link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = 'styles.css';
+  document.head.appendChild(link);
+}
+```
+
+#### 2. 内部样式
+```javascript
+function loadInnerStyleSheet() {
+  let style = document.createElement('style');
+  style.type = 'text/css';
+  let css = 'body {background: yellow}';
+  style.appendChild(document.createTextNode(css));
+  document.head.appendChild(style);
+}
+```
+以上代码除IE以外都能运行，IE不允许访问\<style\>子节点，在运行时会抛出错误，解决方案是访问元素的styleSheet属性，这个属性又有一个cssText属性，然后给这个属性赋值，最终兼容浏览器方法为：
+```javascript
+function loadInnerStyleSheet() {
+  let style = document.createElement('style');
+  style.type = 'text/css';
+  let css = 'body {background: yellow}';
+  try {
+    style.appendChild(document.createTextNode(css))
+  } catch(ex) {
+    style.stylesheet.cssText = css;
+  }
+  docuemnt.head.appendChild(style);
+}
+```
+> CSSStyleSheet
+
+CSSStyleSheet代表CSS样式表。包括使用\<link\>和\<style\>元素定义的样式表。注：这两个元素本身是HTMLLinkElement和HTMLStyleElement。CSSStyleSheet实例只是一个只读对象（除了disabled属性）
+
+#### 1. 获取样式表
+- document.styleSheets
+表示文档中可用的样式表集合，使用中括号或item()获取某个位置的样式表
+- sheet属性
+\<link\>和\<style\>都可以通过sheet获取到
+
+#### 2. css规则
+一般操作css规则是通过style属性来设置的，也可以通过insertRule、deleteRule通过规则索引来操作，但不建议 
+
+### 2. 元素样式
+任何支持style属性的HTML元素都会有一个对应的style属性。这个属性是CSSStyleDeclaration类型的实例。其中包含通过HTMLstyle属性为元素设置的所有样式信息，但不包括通过层叠机制和内部、外部样式中继承的样式。css属性名使用连字符表示法，在JS中这些属性都必须转换成驼峰大小写形式。（float例外，它对应cssFloat）
+
+#### 1. DOM样式属性和方法
+DOM2Style中定义
+- ##### style属性  
+  单个属性获取和设置
+- ##### length属性
+  元素的css属性数量
+- ##### cssText属性
+  全部属性的css字符串代码
+- ##### getPropertyPriority(propertyName)
+  css属性使用了!important就返回“important”，否则空字符串
+- ##### item(index) 
+  返回索引为index的css属性名
+- ##### getPropertyValue(propertyName)
+  获取propertyName属性值
+- ##### setProperty(propertyName, value, priority)
+  设置propertyName属性值
+- ##### removeProperty(propertyName)
+  删除propertyName属性值
+
+#### 2. 计算样式
+因为style对象中不包含其他样式层叠即成的样式信息，DOM2Style在docuemnt.defaultView上增加了getComputedStyle()方法 ，该方法接收两个参数：要取得计算样式的元素和伪元素字符串（如“:after”）
+```javascript
+let computedStyle = document.defaultView.getComputedStyle('mydiv', null)
+```
+
+### 操作脚本
+\<script>元素用于向网页插入JS代码。动态添加脚本的方式有两种：引入外部文件和直接插入源代码
+#### 1. 外部脚本文件
+```javascript
+function loadOuterScript(url) {
+  let script = document.createElement('script');
+  script.src = url;
+  // 还可以添加script其他属性
+  document.body.appendChild(script);
+}
+```
+
+#### 2. 内部样式
+```javascript
+function loadInnerScript() {
+  let script = document.createElement('script');
+  let code = 'console.log(12)';
+  script.appendChild(document.createTextNode(code));
+  document.body.appendChild(script);
+}
+```
+以上代码除Safari3以外都能运行，该环境不允许访问\<script\>子节点，在运行时会抛出错误，解决方案是访问元素的text属性，然后给这个属性赋值，最终兼容浏览器方法为：
+```javascript
+function loadInnerScript() {
+  let script = document.createElement('script');
+  let code = 'console.log(12)';
+  try {
+    script.appendChild(document.createTextNode(code))
+  } catch(ex) {
+    script.text = code;
+  }
+  docuemnt.body.appendChild(script);
+}
+```
+#### 注：通过innerHTML属性创建的\<script>元素永远不会执行
 
 
 
