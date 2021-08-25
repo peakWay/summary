@@ -12,6 +12,9 @@
   - 操作属性
   - 操作样式
   - 操作脚本
+- 常用，好用的属性方法
+  - scrollIntoView()
+  
 
 ## 常用Dom节点类型
 任何HTML或XML文档都可以使用Dom表示为一个由节点构成的层级结构
@@ -134,6 +137,20 @@ parentNode值为null；
 在当前元素的最后一个子节点后面增加一个节点（任何类型）；如果添加的节点是当前文档中存在的节点，相当于移动节点
 #### 2. insertBefore()
 这个方法接收两个参数：要插入的节点和参照节点。调用后插入的节点会成为参照节点的上一个节点
+#### 3. 一次性加入多个元素
+如果用上面两种方式增加元素，每次只能增加一个元素，对于ul添加项这种，每次增加都要重新渲染。可以采用文档片段DocuemntFragment的方式增加
+```javascript
+let fragment = document.createDocumentFragment();
+let ul = document.getElementById('myList');
+
+for(let i=0; i < 3; ++i) {
+   let li = document.getElementById('li');
+   li.apendChild(document.createTextNode('Item ${i + 1}'));
+   fragment.appendChild(li);
+}
+
+ur.appendChild(fragment);
+```
 
 ### 3. 删除元素
 #### 1. removeChild()
@@ -179,6 +196,8 @@ parentNode值为null；
 在DOM0中定义
 #### 3. substringData(offset, count)
 提取从位置offset到offset+count的文本
+#### 4. innerText属性
+HTML5中定义，应为获取文本内容首选
 > 文本节点
 
 通过node的操作方式获取，比如firstChild, prevSibling, nextSibling, lastChild, childNodes等。  
@@ -201,6 +220,10 @@ parentNode值为null；
 ### 4. 更改文本
 #### 1. replaceData(offset, count, text)
 用text替换在位置offst的count个字符
+#### 2. textContent属性
+可读写
+#### 3. innerText属性 
+HTML5定义，会移除元素之前所有的后代节点，也会编码HTML语法符，应为设置文本内容首选
 
 ### 5.创建文本节点
 #### 1. document.createTextNode()
@@ -219,6 +242,7 @@ parentNode值为null；
 - class对应的属性字段为className
 - style返回的是CSSStyleDeclaration对象
 - 使用html绑定的事件处理程序（例：onclick）获取的是函数方法
+- HTML5中classNames属性可以获取DOMTokenList实例
 
 > getAttribute()
 返回的都是字符串，几种特殊的属性:
@@ -372,7 +396,8 @@ function loadInnerScript() {
 ```
 #### 注：通过innerHTML属性创建的\<script>元素永远不会执行
 
-
-
+## 常用，好用的属性方法
+### scrollIntoView
+可以滚动浏览器窗口或容器元素以便元素进入视口，一般可以初始化滚动位置
 
 
