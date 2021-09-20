@@ -14,6 +14,10 @@
   - 操作脚本
 - 常用，好用的属性方法
   - scrollIntoView()
+  - 元素尺寸
+- 遍历
+  - nodeIterator
+  - treewalker
   
 
 ## 常用Dom节点类型

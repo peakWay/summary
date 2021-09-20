@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件类型数据转换</title>
+    <link rel="stylesheet" type="text/css" href="./index.css"></link>
+</head>
+<body>
+    <h1>文件类型数据转换</h1>
+    <!-- <img class="relation" src="./relation.jpg" /> -->
+    <h2>ArrayBuffer</h2>
+    <h3>File转ArrayBuffer</h3>
+    <input type="file" onchange="chooseFileToArrayBuffer(event)" />
+    <h3>Base64转ArrayBuffer</h3>
+    
+    <h2>Blob</h2>
+    <h3>new Blob实例</h3>
+    <h4>文字转Blob</h4>
+    <h4>Html模版转Blob</h4>
+    <h4>其他文件类型转Blob</h4>
+
+    <script src="./js/textTransfer.js"></script>
+    <script src="./js/toArrayBuffer.js"></script>
+    <script >
+        function chooseFileToArrayBuffer(e) {
+            const file = e.target.files[0];
+            console.log(file)
+            fileToArrayBuffer(file)
+                .then(res => {
+                    if (file.type == 'text/plain') {
+                        let text = decodeText(res);
+                        console.log(text);
+                    }
+                })
+        }
+    </script>
+    <script>
+        const base64String = 'b2xkbWFu';
+        const uint8Arr = base64ToArrayBuffer(base64String); 
+        console.log(uint8Arr);
+
+        console.log(decodeText(uint8Arr))
+    </script>
+</body>
+</html>

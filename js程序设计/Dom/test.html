@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #button {
+            background: skyblue;
+        }
+        #dragarea {
+            width: 200px;
+            height: 100px;
+            border: 1px dashed #000;
+        }
+    </style>
+    <script>
+        document.write('<div>Hello world</div>')
+    </script>
+</head>
+<body>
+    <div >
+        <button id="button" data-name="she" class="a" onclick="console.log(23)">
+            点击
+        </button>
+        <div id="text" tabindex="-1">这是一段文字<input id="input" placeholder="请输入" /></div>
+        <div id="custom">自定义菜单操作</div>
+        <ul  id="menu" style="position: absolute;visibility: hidden;background-color: silver;">
+            <li>复制</li>
+            <li>删除</li>
+        </ul>
+        <form>
+            <textarea row="3" disabled>这是一段文本，请选中文字</textarea>
+        </form>
+
+        <form class="a b">
+            <div>自动切换: 实现身份证分段输入</div>
+            <input id="num1" name="name" type="text" maxlength="3" />
+            <input id="num2" type="text" maxlength="3" />
+            <input id="num3" type="text" maxlength="4" />
+            <input id="num4" type="text" maxlength="4" />
+            <input id="num5" type="text" maxlength="4" />
+        </form>
+
+        <div class="file">
+            <div>文件上传和拖拽</div>
+            <div id="process"></div>
+            <div id="error"></div>
+            <input type="file" id="file-input" />
+            <div id="dragarea">拖拽到这</div>
+            <div id="output"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('click', function(e) {
+            console.log(e)
+            // e.stopPropagation()
+        }, true)
+        document.getElementById('button').addEventListener('click', function(e) {
+            console.log(e, '按钮事件处理程序触发')
+        })
+        
+        /* 焦点 */
+        document.getElementById('input').addEventListener('focus', function(e) {
+            console.log('input焦点')
+        })
+        document.getElementById('text').addEventListener('focus', function(e) {
+            console.log(this);
+            console.log('div焦点')
+        })
+        document.getElementById('input').focus()
+        /* 焦点 */
+
+        /* 取代浏览器默认右键 */
+        document.getElementById('custom').addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+
+            let menu = document.getElementById('menu');
+            menu.left = e.clientX;
+            menu.top = e.clientY;
+            menu.style.visibility = 'visible';
+        })
+
+        document.addEventListener('click', function(e) {
+            let menu = document.getElementById('menu');
+
+            if (!menu.contains(e.target)) {
+                menu.style.visibility = 'hidden';
+            }
+        })
+        /* 取代浏览器默认右键 */
+
+        /* 选择文本 */
+        let textarea = document.forms[0].elements[0]
+        textarea.select()
+        
+        textarea.addEventListener('select', (e) => {
+            console.log(e)
+            console.log(textarea.value.substring(textarea.selectionStart, textarea.selectionEnd))
+            
+        })
+        /* 选择文本 */
+
+        /* 自动切换 */
+        function tabForward(e) {
+            const target = e.target;
+            
+            if (target.value.length == target.maxLength) {
+                const form = target.form;
+
+                for(let i=0; i<form.elements.length; i++) {
+                    console.log(i)
+                    if (form.elements[i] == target) {
+                        if (form.elements[i+1]) {
+                            form.elements[i+1].focus();
+                        }
+
+                        break;
+                    }
+                }
+
+                
+            }
+        }
+        let inputIds = ['num1', 'num2', 'num3', 'num4', 'num5'];
+        for (const id of inputIds) {
+            let input = document.getElementById(id);
+            input.addEventListener('keyup', tabForward)
+        }
+        /* 自动切换 */
+
+        /* 操作dom */
+        const dom = document.getElementById('button');
+        // dom.onclick = (e) => {
+        //     console.log(12, e)
+        // }
+        // dom.className = 'sdds'
+        dom.setAttribute('style', 'color: red;')
+        dom.setAttribute('class', 'b')
+        dom.setAttribute('onclick', 'console.log(12, event)')
+        dom.onclick = null
+        dom.innerText = '点击 呀'
+        /* 操作dom */
+
+
+        /* 上传和拖拽文件 */
+        let output = document.getElementById('output'),
+            fileInput = document.getElementById('file-input'),
+            process = document.getElementById('process'),
+            error = document.getElementById('error'),
+            dragarea = document.getElementById('dragarea');
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files)
+        })
+
+        function handleFiles(files) {
+            // let files = e.target.files,
+                type = 'default',
+                reader = new FileReader();
+            console.log(files);
+
+            if (/image/.test(files[0].type)) {
+                reader.readAsDataURL(files[0])
+                type = 'image'
+            } else {
+                reader.readAsText(files[0])
+                type = 'text'
+            }
+
+            reader.onerror = () => {
+                error.innerText = '上传失败'
+            }
+
+            reader.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    process.innerText = `${event.loaded}/${event.total}`
+                }
+            }
+
+            reader.onload = (e) => {
+                console.log(reader.result)
+                let html;
+                switch(type) {
+                    case 'image':
+                        html = `<img src="${reader.result}" />`;
+                        break;
+                    case 'text':
+                        html = reader.result;
+                        break;
+                }
+                output.innerHTML = html;
+            }
+        }
+
+        dragarea.addEventListener('dragenter', (e) => {
+            e.preventDefault()
+        })
+        dragarea.addEventListener('dragover', (e) => {
+            e.preventDefault()
+        })
+        dragarea.addEventListener('drop', (e) => {
+            e.preventDefault()
+            
+            handleFiles(e.dataTransfer.files)
+        })
+        /* 上传和拖拽文件 */
+
+    </script>
+</body>
+</html>
