@@ -7,27 +7,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文件类型数据转换</title>
     <link rel="stylesheet" type="text/css" href="./index.css"></link>
+    <script src="./js/dom.js"></script>
 </head>
 <body>
     <h1>文件类型数据转换</h1>
     <!-- <img class="relation" src="./relation.jpg" /> -->
     <h2>ArrayBuffer</h2>
+
     <h3>File转ArrayBuffer</h3>
     <input type="file" onchange="chooseFileToArrayBuffer(event)" />
+
     <h3>Base64转ArrayBuffer</h3>
-    
+    <p>原base64字符串： <input class="base64-input" tyep="text" value="6L+Z5piv5LiA5q615paH5pys" /></p>
+    <button onclick="base64Transfer()">转换</button>
+    <p>uint8Array: <span class="uint"></span></p>
+    <p>解码后字符串: <span class="string"></span></p>
+
+    <h3>Response通过Body接口转ArrayBuffer</h3>
+    <h4>前置步骤:</h4>
+    <ul>
+        <li>1.input导入./text.txt文件</li>
+        <li>2.利用window.URL.createObjectURL()生成</li>
+        <li>3.fetchUrl</li>
+    </ul>
+    <p>导入: <input type="file" onchange="chooseFileToBlobUrl(event)" /></p>
+    <button class="fetch_btn" onclick="handleFetchToArrayBuffer()">fetch</button>
+    <p>uint8Array: <span class="fetch_unit"></span></p>
+    <p>解码后字符串: <span class="fetch_string"></span></p>
+
+    <h3>Blob转ArrayBuffer</h3>
+    <p>文字内容：文本</p>
+    <p>uint8Array: <span class="blob_unit"></span></p>
+
     <h2>Blob</h2>
-    <h3>new Blob实例</h3>
-    <h4>文字转Blob</h4>
-    <h4>Html模版转Blob</h4>
-    <h4>其他文件类型转Blob</h4>
+
+    <h3>构造函数创建</h3>
+    <p>举例：比较简单的文件类型</p>
+    <ul>
+        <li>文字: new Blob(['Hello,world!'], {type: 'text/plain'})</li>
+        <li>JSON: new Blob([JSON.stringify({name: 'oldman'})], {type: 'text/json'})</li>
+        <li>HTML模版: new Blob(['XXX'], {type: 'text/html'})</li>
+    </ul>
+
+    <h3>ArrayBuffer转Blob</h3>
+    <p>arrayBuffer: [10,232,191,153,230,152,175,228,184,128,230,174,181,230,150,135,230,156,172]</p>
+    <p>Blob.text: <span class="atob_text"></span></p>
+
+    <h3>File转Blob</h3>
+    <p>File无直接转换成Blob的方法，但是可以通过ArrayBuffer或DataURL作中转</p>
+    <h4>前置步骤:</h4>
+    <ul>
+        <li>1.input导入./text.txt文件</li>
+        <li>2.fileReader.readAsArrayBuffer</li>
+    </ul>
+    <p>导入: <input type="file" onchange="chooseFileToBlob(event)" /></p>
+    <p>Blob.text: <span class="ftob_text"></span></p>
+
+    <h3>Response通过Body接口转Blob</h3>
+    <h4>前置步骤:</h4>
+    <ul>
+        <li>1.input导入./text.txt文件</li>
+        <li>2.利用window.URL.createObjectURL()生成</li>
+        <li>3.fetchUrl</li>
+    </ul>
+    <p>导入: <input type="file" onchange="chooseFileToBlobUrl(event)" /></p>
+    <button class="fetch_btn" onclick="handleFetchToBlob()">fetch</button>
+    <p>Blob.text: <span class="fetch_blob"></span></p>
+
+    <h3>CanvasElement转Blob</h3>
+    <p>通过toBlob()方法，暂不举例</p>
+
+    <h2>File</h2>
+    <h3>InputElement.Files和dragEvent.dataTransfer.files</h3>
+
+    <h3></h3>
 
     <script src="./js/textTransfer.js"></script>
     <script src="./js/toArrayBuffer.js"></script>
+    <script src="./js/toObjectURL.js"></script>
+    <script src="./js/toBlob.js"></script>
     <script >
+        /* File转ArrayBuffer */
         function chooseFileToArrayBuffer(e) {
             const file = e.target.files[0];
-            console.log(file)
             fileToArrayBuffer(file)
                 .then(res => {
                     if (file.type == 'text/plain') {
@@ -36,13 +98,89 @@
                     }
                 })
         }
+
+        /* Base64转ArrayBuffer */
+        function base64Transfer() {
+
+            const uint8Arr = base64ToArrayBuffer($('.base64-input').value || ''); 
+
+            $('.uint').append(`[${uint8Arr.toString()}]`)
+
+            $('.string').innerHTML = decodeText(uint8Arr);
+        }
+
+        base64Transfer();
+
+        /* Response的Body对象转ArrayBuffer */
+        let fetchUrl; 
+        function chooseFileToBlobUrl(e) {
+            const file = e.target.files[0]; 
+            fetchUrl = fileToObjectURL(file);
+        }
+
+        function handleFetchToArrayBuffer() {
+            fetch(fetchUrl)
+                .then((res) => res.arrayBuffer())
+                .then((data) => {
+                    let uint8Arr = new Uint8Array(data)
+                    $('.fetch_unit').append(`[${uint8Arr.toString()}]`)
+                    $('.fetch_string').innerHTML = decodeText(uint8Arr);
+                })
+        }
+
+        /* Blob转ArrayBuffer */
+        let blob  = new Blob(['文本'], {type: 'text/plain'});
+        blob.arrayBuffer()
+            .then((data) => {
+                    let uint8Arr = new Uint8Array(data)
+                    $('.blob_unit').append(`[${uint8Arr.toString()}]`)
+                })
+
     </script>
     <script>
-        const base64String = 'b2xkbWFu';
-        const uint8Arr = base64ToArrayBuffer(base64String); 
-        console.log(uint8Arr);
+        /* 构造函数创建 */
+        function createBlobExample() {
+            //文本类型
+            let textBlob = new Blob(['Hello,world!'], {type: 'text/plain'})
+            textBlob.text().then(text => {console.log(text)})
 
-        console.log(decodeText(uint8Arr))
+            //JSON类型
+            let jsonBlob = new Blob([JSON.stringify({name: 'oldman'})], {type: 'text/json'})
+            jsonBlob.text().then(json => {console.log(JSON.parse(json))})
+
+            //HTML模版
+            let htmlBlob = new Blob(['<h1>你好</h1>'], {type: 'text/html'})
+            htmlBlob.text().then(text => {console.log(text)})
+        }
+        createBlobExample();
+
+        /* ArrayBuffer转Blob */
+        (function() {
+            let buffer = new Uint8Array([232,191,153,230,152,175,228,184,128,230,174,181,230,150,135,230,156,172])
+            new Blob([buffer]).text().then(text => {$('.atob_text').append(text)})
+        })()
+
+        /* File转Blob */
+        function chooseFileToBlob(e) {
+            const file = e.target.files[0];
+            fileToArrayBuffer(file)
+                .then((buffer) => {
+                    new Blob([buffer]).text().then(text => {$('.ftob_text').append(text)})
+                })
+        }
+
+        /* Response通过Body接口转Blob */
+        function handleFetchToBlob() {
+            fetch(fetchUrl)
+                .then((res) => res.blob())
+                .then((buffer) => {
+                    new Blob([buffer]).text().then(text => {$('.fetch_blob').append(text)})
+                })
+        }
+
+        
+
+    
     </script>
 </body>
 </html>

@@ -1,9 +1,5 @@
 
-/**
- * 
- * @param {File | Blob} file
- * @returns {Promise<T>} 
- */
+
 function fileToArrayBuffer(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -25,8 +21,7 @@ function base64ToArrayBuffer(base64string)  {
     const base64 = (base64string + padding).replace(/\-/g, '+').replace(/_/g, '/');
 
     const rawData = window.atob(base64);
-    let arraybuffer = new Uint8Array(rawData.length)
-    console.log(rawData);
+    const arraybuffer = new Uint8Array(rawData.length)
 
     for(let i = 0;i < rawData.length; i++) {
         arraybuffer[i] = rawData.charCodeAt(i);
@@ -35,3 +30,4 @@ function base64ToArrayBuffer(base64string)  {
     return arraybuffer;
     
 }
+
