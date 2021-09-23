@@ -17,3 +17,9 @@ h3 {
     line-height: 40px;
     border-top: 2px solid  #000;
 }
+
+#dragarea {
+    width: 200px;
+    height: 100px;
+    border: 1px dashed #000;
+}

@@ -50,7 +50,7 @@
     </ul>
 
     <h3>ArrayBuffer转Blob</h3>
-    <p>arrayBuffer: [10,232,191,153,230,152,175,228,184,128,230,174,181,230,150,135,230,156,172]</p>
+    <p>arrayBuffer:[232,191,153,230,152,175,228,184,128,230,174,181,230,150,135,230,156,172]</p>
     <p>Blob.text: <span class="atob_text"></span></p>
 
     <h3>File转Blob</h3>
@@ -78,14 +78,58 @@
     <p>通过toBlob()方法，暂不举例</p>
 
     <h2>File</h2>
-    <h3>InputElement.Files和dragEvent.dataTransfer.files</h3>
+    <h3>InputElement.Files</h3>
+    <input type="file" onchange="chooseFile(event)" />
 
-    <h3></h3>
+    <h3>dragEvent.dataTransfer.files</h3>
+    <div id="dragarea" ondragover="event.preventDefault()" ondrop="handleDrag(event)">
+        拖入到这
+    </div>
+
+    <h3>Blob转File</h3>
+    <p>new Blob(['Hello, world!'], {type: 'text/plain'})</p>
+    <h3>CanvasElement转File</h3>
+    <p>通过mozGetAsFile()方法，只有火狐浏览器支持，暂不举例</p>
+
+    <h3>DataURL转File</h3>
+    <p>DataURL: data:text/plain;base64,SGVsbG8sIHdvcmxkIQ==</p>
+    <button onclick="handleDataURLToFile()">转换</button>
+
+
+    <h2>DataURL(base64)</h2>
+    <h3>File转DataURL</h3>
+    <input type="file" onchange="chooseFileToDataURL(event)" />
+    <p>DataURL(base64): <span class="file_dataurl"></span></p>
+
+    <h3>Blob转DataURL</h3>
+    <p>new Blob(['Hello, world!'], {type: 'text/plain'})</p>
+    <p>DataURL(base64): <span class="blob_dataurl"></span></p>
+
+    <h3>CanvasElement转DataURL</h3>
+    <p>通过toDataURL()方法，暂不举例</p>
+
+    <h2>base64</h2>
+    <h3>字符串转base64</h3>
+    <p>字符串: Hello,world!</p>
+    <p>base64: <span class="str_base64"></span></p>
+
+    <h3>ArrayBuffer转base64</h3>
+    <p>ArrayBuffer: [232,191,153,230,152,175,228,184,128,230,174,181,230,150,135,230,156,172]</p>
+    <p>base64: <span class="buffer_base64"></span></p>
+
+    <h3>DataURL转base64</h3>
+    <p>DataURL(base64): data:text/plain;base64,SGVsbG8sIHdvcmxkIQ==</p>
+    <p>base64: <span class="dataurl_base64"></span></p>
+
+    <h2>ObjectURL/BlobURL</h2>
+    <h3>通过window.URL.createObjectURL()创建，参数可为File或Blob</h3>
 
     <script src="./js/textTransfer.js"></script>
     <script src="./js/toArrayBuffer.js"></script>
     <script src="./js/toObjectURL.js"></script>
-    <script src="./js/toBlob.js"></script>
+    <script src="./js/toDataURL.js"></script>
+    <script src="./js/toBase64.js"></script>
+    <script src="./js/toFile.js"></script>
     <script >
         /* File转ArrayBuffer */
         function chooseFileToArrayBuffer(e) {
@@ -100,16 +144,13 @@
         }
 
         /* Base64转ArrayBuffer */
-        function base64Transfer() {
-
+        (function() {
             const uint8Arr = base64ToArrayBuffer($('.base64-input').value || ''); 
 
-            $('.uint').append(`[${uint8Arr.toString()}]`)
+            $('.uint').append(`[${uint8Arr.toString()}]`);
 
             $('.string').innerHTML = decodeText(uint8Arr);
-        }
-
-        base64Transfer();
+        })();
 
         /* Response的Body对象转ArrayBuffer */
         let fetchUrl; 
@@ -139,7 +180,7 @@
     </script>
     <script>
         /* 构造函数创建 */
-        function createBlobExample() {
+        (function() {
             //文本类型
             let textBlob = new Blob(['Hello,world!'], {type: 'text/plain'})
             textBlob.text().then(text => {console.log(text)})
@@ -151,14 +192,13 @@
             //HTML模版
             let htmlBlob = new Blob(['<h1>你好</h1>'], {type: 'text/html'})
             htmlBlob.text().then(text => {console.log(text)})
-        }
-        createBlobExample();
+        })();
 
         /* ArrayBuffer转Blob */
         (function() {
             let buffer = new Uint8Array([232,191,153,230,152,175,228,184,128,230,174,181,230,150,135,230,156,172])
             new Blob([buffer]).text().then(text => {$('.atob_text').append(text)})
-        })()
+        })();
 
         /* File转Blob */
         function chooseFileToBlob(e) {
@@ -177,10 +217,69 @@
                     new Blob([buffer]).text().then(text => {$('.fetch_blob').append(text)})
                 })
         }
+    </script>
+    <script>
+        /* inputElement.Files */
+        function chooseFile(e) {
+            console.log(e.target.files)
+        }
 
-        
+        /* dragEvent.dataTransfer.files */
+        function handleDrag(e) {
+            e.preventDefault()
+            console.log(e.dataTransfer.files)
+        }
 
-    
+        /* Blob转File */
+        (function() {
+            let blob = new Blob(['Hello, world!'], {type: 'text/plain'});
+            console.log(new File([blob], 'text.txt', {type: 'text/plain'}))
+        })()
+
+        /* DataURL转File */
+        function handleDataURLToFile() {
+            let dataurl = 'data:text/plain;base64,SGVsbG8sIHdvcmxkIQ==';
+            console.log(dataURLToFile(dataurl, '文本文件'))
+        }
+    </script>
+    <script>
+        /* File转DataURL */
+        function chooseFileToDataURL(e) {
+            const file = e.target.files[0];
+
+            fileToDataURL(file)
+                .then(res => {
+                    $('.file_dataurl').append(res)
+                })
+        }
+
+        /* Blob转DataURL */
+        (function() {
+            const blob =  new Blob(['Hello, world!'], {type: 'text/plain'});
+            fileToDataURL(blob)
+                .then(res => {
+                    $('.blob_dataurl').append(res)
+                })
+        })()
+    </script>
+    <script>
+        /* 字符串编码成base64，不能是中文 */
+        (function () {
+            let str = 'hello,world';
+            $('.str_base64').append(window.btoa(str))
+        })();
+
+        /* ArrayBuffer转base64 */
+        (function () {
+            let buffer = new Uint8Array([232,191,153,230,152,175,228,184,128,230,174,181,230,150,135,230,156,172]);
+            $('.buffer_base64').append(arrayBufferToBase64(buffer))
+        })();
+
+        /* DataURL转base64 */
+        (function () {
+            let dataurl = 'data:text/plain;base64,SGVsbG8sIHdvcmxkIQ==';
+            $('.dataurl_base64').append(dataURLToBase64(dataurl))
+        })();
     </script>
 </body>
 </html>
