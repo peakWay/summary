@@ -5,6 +5,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 console.log(process.env.NODE_ENV, 'NODE_ENV')
 
+
 module.exports = merge(common, {
     mode: 'production',
     output: {
