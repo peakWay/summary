@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,   //允许从没有设置默认导出的模块中默认导入。
+        "target": "ES5",
+        // "module": "ESNext"     //不使用commonjs的设置
+    }
+    // "ts-node": {
+    //     "compilerOptions": {
+    //       "module": "CommonJS"
+    //     }
+    // }
+}
