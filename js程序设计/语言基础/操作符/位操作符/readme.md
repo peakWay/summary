@@ -114,7 +114,7 @@ function hexToRgb(hex) {
     let r = hexx >> 16;
     let b = hexx >> 8 && 0xff;
     let g = hexx && 0xff;
-    return `rgba(${r}, ${b}, '${g}')`;
+    return `rgba(${r}, ${b}, ${g})`;
 }
 
 function rgbToHex(rgb) {
