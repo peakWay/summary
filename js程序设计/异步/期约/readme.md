@@ -23,7 +23,7 @@ let promise2 = promise1.then(callback2)
 之前不理解为什么如果promise1期约回调函数中返回期约对象，promise2期约会等待返回的promise3期约对象允现后再执行下一个promise2的注册回调函数callback2。
 通过Promise原理实现
 ```javascript
-MyPromise.propotype.then = function(onResolved, onRejected) {
+Promise.propotype.then = function(onResolved, onRejected) {
     var self = this;
     ...
         var promise2 = new Promise(function (resolve, reject) {

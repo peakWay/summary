@@ -8,7 +8,7 @@
  */
 
 
- function MyPromise(executor) {
+ function Promise(executor) {
     var self = this;
     self.status = 'pending';    //期约状态
     self.data = null;           //兑现值

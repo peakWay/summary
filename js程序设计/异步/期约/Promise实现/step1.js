@@ -8,7 +8,7 @@
  */
 
 
-function MyPromise(executor) {
+function Promise(executor) {
     this.status = 'pending';    //期约状态
     this.data = null;           //兑现值
     this.onResolvedCallback = [];       //注册的兑现回调数组

@@ -10,7 +10,7 @@
  */
 
 
- function MyPromise(executor) {
+ function Promise(executor) {
     var self = this;
     self.status = 'pending';    //期约状态
     self.data = null;           //兑现值
@@ -22,27 +22,27 @@
             return value.then(resolve, reject);
         }
 
-        if (self.status === 'pending') {
-            setTimeout(function() {
+        setTimeout(function() {
+            if (self.status === 'pending') {
                 self.status = 'resolved';
                 self.data = value;
                 for (var i=0; i < onResolvedCallback.length; i++) {
                     onResolvedCallback[i](value);
                 }
-            }, 0)
-        }
+            }
+        }, 0)
     }
 
     function reject(reason) {
-        if (self.status === 'pending') {
-            setTimeout(function() {
+        setTimeout(function() {
+            if (self.status === 'pending') {
                 self.status = 'rejected';
                 self.data = reason;
                 for (var i=0; i < onRejectedCallback.length; i++) {
                     onRejectedCallback[i](value);
                 }
-            }, 0);
-        }
+            }
+        }, 0);
     }
 
     try { //考虑到执行executor的过程中有可能出错
@@ -52,7 +52,7 @@
     }
 } 
 
-MyPromise.prototype.then = function (onResolved, onRejected) {
+Promise.prototype.then = function (onResolved, onRejected) {
     var self = this;  //在新期约对象执行器中要获取当前期约值，所以使用self变量
     var promise2;
 

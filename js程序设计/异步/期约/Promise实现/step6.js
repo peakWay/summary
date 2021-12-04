@@ -1,13 +1,11 @@
 
 /**
  * Promise原理实现
- * 步骤5：then还存在的问题解决及catch方法
- * 1. 未考虑回调中返回期约值的情况，会导致promise2期约并未兑现（虽已解决）回调直接开始执行。所以我们需要对回调返回的值x进行判断，并将promise1的落定控制权交给回调返回的期约值promiseN。若一直嵌套返回期约，promise2的回调最终成为最后一个期约的回调，直到最终返回非期约，promise2的回调就会在最后一个期约兑现后执行
- * 2. 当期约promise1已落定时再注册回调时，会直接返回promise2，promise2的执行器会同步执行，这样会导致promise2后面同步代码会在执行器后执行，这样就导致了promise2失去了异步性，所以当promise1已落定注册的回调需要用setTimeout来实现异步。而等待中(pending)的回调只是将回调添加到回调列表中，等待promise1落定本身就是异步的，所以不需要
- * 3. catch就是then方法第一个参数为空，第二个参数为方法的简写，为了之后的方便，增加catch方法.
- * 4. 值的穿透，比较常见例子：Promise.resolve(1).then().then((value) => {})我们认为这里的value应该为1，但以之前的写法因为中间的then回调为空默认返回undefinded，所以value值为undefinded。还有错误的情况，new Promise((resolve) => { throw Error('error'); }).then(() => {}).catch((err) => {})一般把catch放到期约链的最后，能捕获到在链上任意位置抛出的第一个错误。
+ * 步骤6：Promise/A+标准问题解决,用来满足不同Promise的交互
+ * 1.解决的值不能为该promise对象，否则会死循环
+ * 2.promise回调返回的期约对象需要判断是否已落定，若未落定将兑现控制交给下一层期约，“递归”至非期约值，否则直接返回落定期约的值
+ * 3.x返回不一定是Promise，但可能实现了then属性但不遵守Promise标准的对象，then属性是可能是方法，可能是普通对象，也可能是基础类型。如果是方法则获取将其值进行下一次验证，其他情况直接x兑现
  */
-
 
 
  function Promise(executor) {
@@ -22,7 +20,6 @@
             return value.then(resolve, reject);
         }
 
-        
         setTimeout(function() {
             if (self.status === 'pending') {
                 self.status = 'resolved';
@@ -44,7 +41,6 @@
                 }
             }
         }, 0);
-        
     }
 
     try { //考虑到执行executor的过程中有可能出错
@@ -67,11 +63,7 @@ Promise.prototype.then = function (onResolved, onRejected) {
             setTimeout(() => {
                 try {
                     var x = onResolved(self.data);
-                    if (x instanceof Promise) {
-                        x.then(resolve, reject);
-                    } else {
-                        resolve(x);
-                    }
+                    resolvePromise(promise2, x, resolve, reject);
                 } catch (e) {
                     reject(e);
                 }
@@ -85,11 +77,7 @@ Promise.prototype.then = function (onResolved, onRejected) {
             setTimeout(() => {
                 try {
                     var x = onRejected(self.data);
-                    if (x instanceof Promise) {
-                        x.then(resolve, reject);
-                    } else {
-                        resolve(x);
-                    }
+                    resolvePromise(promise2, x, resolve, reject);
                 } catch (e) {
                     reject(e);
                 }
@@ -104,11 +92,7 @@ Promise.prototype.then = function (onResolved, onRejected) {
             self.onResolvedCallback.push(function(value) {
                 try {
                     var x = onResolved(self.data);
-                    if (x instanceof Promise) {
-                        x.then(resolve, reject);
-                    } else {
-                        resolve(x);
-                    }
+                    resolvePromise(promise2, x, resolve, reject);
                 } catch (e) {
                     reject(e);
                 }
@@ -116,11 +100,7 @@ Promise.prototype.then = function (onResolved, onRejected) {
             self.onResolvedCallback.push(function() {
                 try {
                     var x = onRejected(self.data);
-                    if (x instanceof Promise) {
-                        x.then(resolve, reject);
-                    } else {
-                        resolve(x);
-                    }
+                    resolvePromise(promise2, x, resolve, reject);
                 } catch (e) {
                     reject(e);
                 }
@@ -131,4 +111,54 @@ Promise.prototype.then = function (onResolved, onRejected) {
 
 Promise.prototype.catch = function(onRejected) {
     return this.then(null, onRejected);
+}
+
+/*resolvePromise函数即为根据x的值来决定promise2的状态的函数*/
+function resolvePromise(promise2, x, resolve, reject) {
+    var then;
+    var thenCalledOrThrow = false;
+
+    if (promise2 === x) {
+        return reject(new TypeError('Chaining cycle detected for promise!'))
+    }
+
+    if (x instanceof Promise) {
+        if (x.status === 'pending'){
+            x.then(function(value) {
+                //将控制逻辑判断交给下一个期约
+                resolvePromise(promise2, value, resolve, reject);
+            })
+        } else {
+            x.then(resolve, reject)
+        }
+        return;
+    }
+
+    if (x !== null && (typeof x === 'object' || typeof x === 'function')) {
+        try {
+            then = x.then;
+
+            //判断then的类型
+            if (typeof then === 'function') {
+                then.call(x, function(y) {
+                    if(thenCalledOrThrow) return;
+                    thenCalledOrThrow = true;
+                    return resolvePromise(promise2, y, resolve, reject);
+                }, function(e) {
+                    if(thenCalledOrThrow) return;
+                    thenCalledOrThrow = true;
+                    return reject(e);
+                })
+            } else {
+                resolve(x);
+            }
+            
+        } catch(e) {
+            if(thenCalledOrThrow) return;
+            thenCalledOrThrow = true;
+            return reject(e)
+        }
+    } else {
+        resolve(x);
+    }
 }
