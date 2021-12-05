@@ -1,40 +1,52 @@
 
+
 /**
  * Promise原理实现
- * 步骤6：Promise/A+标准问题解决,用来满足不同Promise的交互
- * 1.解决的值不能为该promise对象，否则会死循环
- * 2.promise回调返回的期约对象需要判断是否已落定，若未落定将兑现控制交给下一层期约，“递归”至非期约值，否则直接返回落定期约的值
- * 3.x返回不一定是Promise，但可能实现了then属性但不遵守Promise标准的对象，then属性是可能是方法，可能是普通对象，也可能是基础类型。如果是方法则获取将其值进行下一次验证，其他情况直接x兑现
+ * 步骤6：案例三失败问题
+ * 验证下test中1.js案例三和promise对比当前实现是否正确：结果不正确。因为resolve一个期约时，状态还在等待状态，这里遇到第一个resolve就解决，不管解决值是不是期约，若是期约，回调需要等期约落定才能开始
+ * 这个问题主要原因就是没分清楚resolve解决状态和fulfilled兑现状态，期约执行完后不管返回什么状态都会变成解决，但是只有落定（兑现/拒绝）状态才会去开始执行回调
  */
 
   
  function Promise(executor) {
     var self = this;
-    self.status = 'pending';    //期约状态
+    self.status = 'pending';    //期约状态 pending等待、resolve解决、fulfilled兑现、rejected拒绝
     self.data = null;           //兑现值
     self.onResolvedCallback = [];       //注册的兑现回调数组
     self.onRejectedCallback = [];       //注册的拒绝回调数组
 
-    function resolve(value) {
-        if (value instanceof Promise) { //无论状态是否落定都会落定期约值
-            return value.then(resolve, reject);
-        }
+    function fulfill(value) {
+        self.status = 'fulfilled';
+        setTimeout(() => {
+            self.data = value;
+            for (var i=0; i < self.onResolvedCallback.length; i++) {
+                self.onResolvedCallback[i](value);
+            }
+        }, 0);
+    }
 
+    function resolve(value) {
         setTimeout(function() {
             if (self.status === 'pending') {
+                //解决状态
                 self.status = 'resolved';
-                self.data = value;
-                for (var i=0; i < self.onResolvedCallback.length; i++) {
-                    self.onResolvedCallback[i](value);
+
+                if (value instanceof Promise) { 
+                    return value.then(fulfill, reject);
+                } else {
+                    fulfill(value)
                 }
             }
         }, 0)
     }
 
     function reject(reason) {
+        if (self.status === 'pending') {
+            self.status = 'rejected';
+        }
+
         setTimeout(function() {
-            if (self.status === 'pending') {
-                self.status = 'rejected';
+            if (self.status === 'rejected') {
                 self.data = reason;
                 for (var i=0; i < self.onRejectedCallback.length; i++) {
                     self.onRejectedCallback[i](value);
@@ -58,7 +70,7 @@ Promise.prototype.then = function (onResolved, onRejected) {
     onRejected = typeof onRejected === 'function' ? onRejected : function(reason) { /* 实现错误的穿透 */ throw reason };
 
     
-    if (self.status === 'resolved') {
+    if (self.status === 'fulfilled') {
         return promise2 = new Promise(function(resolve, reject) {
             setTimeout(function() {
                 try {

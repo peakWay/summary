@@ -27,8 +27,8 @@
             if (self.status === 'pending') {
                 self.status = 'resolved';
                 self.data = value;
-                for (var i=0; i < onResolvedCallback.length; i++) {
-                    onResolvedCallback[i](value);
+                for (var i=0; i < self.onResolvedCallback.length; i++) {
+                    self.onResolvedCallback[i](value);
                 }
             }
         }, 0)
@@ -39,8 +39,8 @@
             if (self.status === 'pending') {
                 self.status = 'rejected';
                 self.data = reason;
-                for (var i=0; i < onRejectedCallback.length; i++) {
-                    onRejectedCallback[i](value);
+                for (var i=0; i < self.onRejectedCallback.length; i++) {
+                    self.onRejectedCallback[i](value);
                 }
             }
         }, 0);
@@ -103,7 +103,7 @@ Promise.prototype.then = function (onResolved, onRejected) {
         return promise2 = new Promise(function(resolve, reject) {
             self.onResolvedCallback.push(function(value) {
                 try {
-                    var x = onResolved(self.data);
+                    var x = onResolved(value);
                     if (x instanceof Promise) {
                         x.then(resolve, reject);
                     } else {
@@ -113,9 +113,9 @@ Promise.prototype.then = function (onResolved, onRejected) {
                     reject(e);
                 }
             });
-            self.onResolvedCallback.push(function() {
+            self.onRejectedCallback.push(function(reason) {
                 try {
-                    var x = onRejected(self.data);
+                    var x = onRejected(reason);
                     if (x instanceof Promise) {
                         x.then(resolve, reject);
                     } else {

@@ -48,12 +48,12 @@ new Promise((resolve, reject) => {
     console.log('当执行器存在多个resolve开始');
 
     // resolve(1)
-    // resolve(new Promise((resolve) => {
-    //     setTimeout(() => {
-    //         resolve(3)
-    //     }, 2000)
-    // }))
-    wait(1000).then(() => resolve(3))
+    resolve(new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(3)
+        }, 2000)
+    }))
+    // wait(1000).then(() => resolve(3))
     resolve(2)
 }).then(data => {
     console.log('多个resolve期约值', data)

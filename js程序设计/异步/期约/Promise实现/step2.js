@@ -19,8 +19,8 @@
         if (self.status === 'pending') {
             self.status = 'resolved';
             self.data = value;
-            for (var i=0; i < onResolvedCallback.length; i++) {
-                onResolvedCallback[i](value);
+            for (var i=0; i < self.onResolvedCallback.length; i++) {
+                self.onResolvedCallback[i](value);
             }
         }
     }
@@ -29,8 +29,8 @@
         if (self.status === 'pending') {
             self.status = 'rejected';
             self.data = reason;
-            for (var i=0; i < onRejectedCallback.length; i++) {
-                onRejectedCallback[i](value);
+            for (var i=0; i < self.onRejectedCallback.length; i++) {
+                self.onRejectedCallback[i](value);
             }
         }
     }

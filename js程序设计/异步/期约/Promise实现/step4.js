@@ -26,8 +26,8 @@
             if (self.status === 'pending') {
                 self.status = 'resolved';
                 self.data = value;
-                for (var i=0; i < onResolvedCallback.length; i++) {
-                    onResolvedCallback[i](value);
+                for (var i=0; i < self.onResolvedCallback.length; i++) {
+                    self.onResolvedCallback[i](value);
                 }
             }
         }, 0)
@@ -38,8 +38,8 @@
             if (self.status === 'pending') {
                 self.status = 'rejected';
                 self.data = reason;
-                for (var i=0; i < onRejectedCallback.length; i++) {
-                    onRejectedCallback[i](value);
+                for (var i=0; i < self.onRejectedCallback.length; i++) {
+                    self.onRejectedCallback[i](value);
                 }
             }
         }, 0);
@@ -86,17 +86,17 @@ Promise.prototype.then = function (onResolved, onRejected) {
         //注册的回调并不是只将onResolved或onRejected添加到onResolvedCallback或onRejectedCallback
         //如果这样promise2就不可能落定了，就无法执行promise2注册的回调函数了,期约链就无法连接
         return promise2 = new Promise(function(resolve, reject) {
-            self.onResolvedCallback.push(function() {
+            self.onResolvedCallback.push(function(value) {
                 try {
-                    var x = onResolved(self.data);
+                    var x = onResolved(value);
                     resolve(x);
                 } catch (e) {
                     reject(e);
                 }
             });
-            self.onResolvedCallback.push(function() {
+            self.onRejectedCallback.push(function(reason) {
                 try {
-                    var x = onResolved(self.data);
+                    var x = onResolved(reason);
                     resolve(x);
                 } catch (e) {
                     reject(e);
